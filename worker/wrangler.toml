@@ -1,0 +1,30 @@
+name = "biggs-api"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+# Once the domain is on Cloudflare, serve the API from the same address as the page
+# (no cross-site calls needed). Uncomment and set the real domain, then run: npm run deploy
+# routes = [{ pattern = "biggsbakes.com/api/*", zone_name = "biggsbakes.com" }]
+
+[vars]
+# Comma separated, no trailing slash. The holding page and the main site.
+ALLOWED_ORIGINS = "https://biggsbakes.com,https://www.biggsbakes.com"
+# Where confirm.html and unsubscribe.html live (the holding page address), no trailing slash.
+SITE_URL = "https://biggsbakes.com"
+FROM_EMAIL = "Biggs Bakes <hello@biggsbakes.com>"
+FIREBASE_PROJECT_ID = "biggs-6ed18"
+# Sign-up attempts allowed per person per hour, and across everyone per hour (the circuit breaker
+# that protects the free Firestore daily write quota and the free email quota).
+IP_PER_HOUR = "5"
+GLOBAL_PER_HOUR = "300"
+
+# Secrets (never put these in this file). Set each with: npx wrangler secret put NAME
+#   TURNSTILE_SECRET, RESEND_API_KEY, HMAC_SECRET, FIREBASE_SERVICE_ACCOUNT
+
+[[durable_objects.bindings]]
+name = "LIMITER"
+class_name = "Limiter"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Limiter"]

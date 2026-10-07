@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Biggs Bakes | NYC-Inspired Cookies, Baked in Britain</title>
+    <meta
+      id="meta-desc"
+      name="description"
+      content="Thick, gooey, NYC-inspired cookies baked fresh in the UK. Sign up to be the first to get Biggs cookies."
+    />
+    <meta name="theme-color" content="#243026" />
+
+    <link rel="icon" href="icons/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_GB" />
+    <meta property="og:site_name" content="Biggs Bakes" />
+    <meta property="og:title" content="Biggs Bakes | NYC-Inspired Cookies, Baked in Britain" />
+    <meta
+      property="og:description"
+      content="Thick, gooey, NYC-inspired cookies baked fresh in the UK. Sign up to be the first to get Biggs cookies."
+    />
+    <meta id="og-image" property="og:image" content="images/opengraph.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Montserrat:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="card" aria-labelledby="signup-heading">
+        <div class="card-top">
+          <img
+            id="logo-img"
+            class="logo"
+            src="images/logo.webp"
+            alt="Biggs"
+            width="1200"
+            height="627"
+          />
+        </div>
+
+        <div class="card-body">
+          <div class="card-image">
+            <img
+              id="cookie-img"
+              src="images/chocolate-chip.webp"
+              alt="Gooey Biggs chocolate chip cookie"
+              width="500"
+              height="500"
+            />
+          </div>
+
+          <div class="card-content">
+            <h1 id="signup-heading">Be the first to get Biggs cookies.</h1>
+            <p id="lede" class="lede">Sign up to get early access to the next drop of new flavours.</p>
+
+            <form id="signup-form" class="form" novalidate>
+              <label class="sr-only" for="email">Email address</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                inputmode="email"
+                autocomplete="email"
+                maxlength="254"
+                required
+                placeholder="Your email address"
+              />
+              <!-- Honeypot: real people never see or fill this -->
+              <input
+                class="hp"
+                type="text"
+                name="company"
+                tabindex="-1"
+                autocomplete="off"
+                aria-hidden="true"
+              />
+              <button id="submit-btn" type="submit" aria-label="Sign up">
+                <span class="arrow" aria-hidden="true">&rarr;</span>
+              </button>
+            </form>
+
+            <div id="turnstile" class="turnstile"></div>
+
+            <p id="form-message" class="message" role="status" aria-live="polite"></p>
+
+            <p id="consent" class="consent">
+              By signing up you agree to receive emails from Biggs about new flavours and drops.
+              Unsubscribe at any time.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="content-schema.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>

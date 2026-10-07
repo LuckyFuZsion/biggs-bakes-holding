@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Biggs admin</title>
+    <link rel="icon" href="../icons/favicon.ico" sizes="any" />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <strong>Biggs admin</strong>
+      <span id="who" class="who"></span>
+      <button id="signout" class="ghost" type="button" hidden>Sign out</button>
+    </header>
+
+    <main class="wrap">
+      <noscript><p class="notice">This area needs JavaScript switched on.</p></noscript>
+      <p id="setup-warning" class="notice error" hidden>
+        Firebase is not set up yet. Fill in the firebase block in config.js.
+      </p>
+
+      <!-- Sign in -->
+      <section id="view-login" class="panel narrow" hidden>
+        <h1>Sign in</h1>
+        <form id="login-form" autocomplete="on">
+          <label for="login-email">Email</label>
+          <input id="login-email" type="email" autocomplete="username" required />
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" autocomplete="current-password" required />
+          <button class="primary" type="submit">Sign in</button>
+        </form>
+        <p id="login-msg" class="notice" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- 2-step code -->
+      <section id="view-mfa" class="panel narrow" hidden>
+        <h1>2-step verification</h1>
+        <p>Open your authenticator app and type the 6 digit code for Biggs admin.</p>
+        <form id="mfa-form">
+          <label for="mfa-code">Code</label>
+          <input id="mfa-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required />
+          <button class="primary" type="submit">Verify</button>
+        </form>
+        <p id="mfa-msg" class="notice" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- The admin -->
+      <section id="view-app" hidden>
+        <nav class="tabs" role="tablist">
+          <button class="tab is-active" data-tab="content" role="tab" type="button">Page content</button>
+          <button class="tab" data-tab="subscribers" role="tab" type="button">Subscribers</button>
+          <button class="tab" data-tab="security" role="tab" type="button">Security</button>
+        </nav>
+
+        <div id="tab-content" class="panel">
+          <h1>Page content</h1>
+          <p class="muted">
+            Change anything below, then press <strong>Save and publish</strong>. Leave a box empty to use the
+            original built-in version. Changes appear on the live page within about a minute. The share picture
+            that shows when the link is posted on social media is fixed and is changed by your web developer.
+          </p>
+          <form id="content-form"></form>
+          <div class="actions">
+            <button id="save-content" class="primary" type="button">Save and publish</button>
+            <a id="view-page" href="/" target="_blank" rel="noopener">View the live page</a>
+          </div>
+          <p id="content-msg" class="notice" role="status" aria-live="polite"></p>
+        </div>
+
+        <div id="tab-subscribers" class="panel" hidden>
+          <h1>Subscribers</h1>
+          <div id="stats" class="stats"></div>
+
+          <div class="toolbar">
+            <label class="inline" for="sub-filter">Show</label>
+            <select id="sub-filter">
+              <option value="confirmed">Confirmed</option>
+              <option value="pending">Waiting to confirm</option>
+              <option value="unsubscribed">Unsubscribed</option>
+              <option value="all">Everyone</option>
+            </select>
+            <input id="sub-search" type="search" placeholder="Search emails" maxlength="100" />
+          </div>
+
+          <div class="toolbar">
+            <label class="inline" for="copy-sep">Copy as</label>
+            <select id="copy-sep">
+              <option value=", ">Comma separated (Gmail, Apple Mail)</option>
+              <option value="; ">Semicolon separated (Outlook)</option>
+              <option value="\n">One per line</option>
+            </select>
+            <button id="copy-all" class="primary" type="button">Copy all confirmed emails</button>
+            <button id="download-csv" class="ghost" type="button">Download CSV</button>
+          </div>
+          <p class="muted small">
+            Copy puts <strong>confirmed</strong> subscribers only on your clipboard. Paste them into the
+            <strong>BCC</strong> box so people cannot see each other's addresses, and send in batches if your
+            email provider limits recipients. Each email must include an unsubscribe link: the CSV has a personal
+            link for every person.
+          </p>
+          <p id="sub-msg" class="notice" role="status" aria-live="polite"></p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Email</th><th>Status</th><th>Source</th><th>Signed up</th><th></th></tr>
+              </thead>
+              <tbody id="sub-rows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="tab-security" class="panel narrow" hidden>
+          <h1>Security</h1>
+          <h2>2-step verification</h2>
+          <p id="mfa-status" class="muted"></p>
+          <div id="mfa-setup" hidden>
+            <p>1. In an authenticator app (Google Authenticator, Microsoft Authenticator, 1Password), choose
+              <em>add account</em> then <em>enter a setup key</em>, and type this key:</p>
+            <p><code id="mfa-secret" class="secret"></code></p>
+            <p>2. Type the 6 digit code the app shows:</p>
+            <form id="mfa-enrol-form">
+              <input id="mfa-enrol-code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required />
+              <button class="primary" type="submit">Turn on 2-step</button>
+            </form>
+          </div>
+          <button id="mfa-start" class="primary" type="button" hidden>Set up 2-step verification</button>
+          <p id="security-msg" class="notice" role="status" aria-live="polite"></p>
+          <h2>Password</h2>
+          <button id="reset-password" class="ghost" type="button">Email me a password reset link</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="../config.js"></script>
+    <script src="../content-schema.js"></script>
+    <script type="module" src="admin.js"></script>
+  </body>
+</html>

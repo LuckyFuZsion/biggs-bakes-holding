@@ -1,0 +1,84 @@
+rules_version = '2';
+
+// The public website never talks to Firestore. It reads through the Cloudflare Worker, which uses
+// a service account (that bypasses these rules). So everything here is for the signed-in ADMIN only.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Admins are accounts given the custom claim admin=true by admin-scripts/create-admin.js.
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    function optText(d, k, max) {
+      return !(k in d) || (d[k] is string && d[k].size() <= max);
+    }
+
+    // Images are stored as separate documents. The page content only holds the image's id.
+    function optImageId(d, k) {
+      return !(k in d) || (d[k] is string && d[k].matches('^[a-z]{2,12}-[0-9]{10,14}$'));
+    }
+
+    function optColour(d, k) {
+      return !(k in d) || (d[k] is string && d[k].matches('^#[0-9a-fA-F]{6}$'));
+    }
+
+    function validHolding(d) {
+      return d.keys().hasOnly([
+          'heading', 'lede', 'placeholder', 'buttonLabel', 'consent', 'successMessage',
+          'pageTitle', 'metaDescription', 'logoUrl', 'logoAlt', 'imageUrl', 'imageAlt',
+          'green', 'yellow', 'cream', 'updatedAt'
+        ])
+        && optText(d, 'heading', 120)
+        && optText(d, 'lede', 240)
+        && optText(d, 'placeholder', 60)
+        && optText(d, 'buttonLabel', 40)
+        && optText(d, 'consent', 300)
+        && optText(d, 'successMessage', 160)
+        && optText(d, 'pageTitle', 70)
+        && optText(d, 'metaDescription', 200)
+        && optText(d, 'logoAlt', 120)
+        && optText(d, 'imageAlt', 120)
+        && optImageId(d, 'logoUrl')
+        && optImageId(d, 'imageUrl')
+        && optColour(d, 'green')
+        && optColour(d, 'yellow')
+        && optColour(d, 'cream')
+        && d.updatedAt == request.time;
+    }
+
+    // Page content: only admins touch it directly.
+    match /site/holding {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin() && validHolding(request.resource.data);
+      allow delete: if false;
+    }
+
+    // Uploaded images. Each id is written once and never changed. JPEG or WebP only (never SVG),
+    // and small enough to fit in a document.
+    match /images/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+        && id.matches('^[a-z]{2,12}-[0-9]{10,14}$')
+        && request.resource.data.keys().hasOnly(['mime', 'b64', 'createdAt'])
+        && request.resource.data.mime in ['image/webp', 'image/jpeg']
+        && request.resource.data.b64 is string
+        && request.resource.data.b64.size() > 100
+        && request.resource.data.b64.size() <= 900000
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+
+    // Subscribers are created and changed ONLY by the Worker. Browsers can never write here.
+    // Admins can read and delete (right to erasure).
+    match /subscribers/{id} {
+      allow read, delete: if isAdmin();
+      allow create, update: if false;
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
